@@ -71,12 +71,14 @@ function getBounds (gl, source, options, done) {
 
     fbo.bind()
     gl.viewport(0, 0, sliceSize[0], sliceSize[1])
+    gl.disable(gl.CULL_FACE)
+    gl.disable(gl.DEPTH_TEST)
     triangle(gl)
 
     gl.viewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3])
     gl.bindFramebuffer(gl.FRAMEBUFFER, prevBuffer)
-    prevDepth ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST)
-    prevCull ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE)
+    if (prevDepth) gl.enable(gl.DEPTH_TEST)
+    if (prevCull) gl.enable(gl.CULL_FACE)
 
     window.requestAnimationFrame(function () {
       var prevBuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING) || null
@@ -85,7 +87,6 @@ function getBounds (gl, source, options, done) {
       fbo.bind()
       gl.readPixels(0, 0, sliceSize[0], sliceSize[1], gl.RGBA, gl.UNSIGNED_BYTE, data)
       gl.bindFramebuffer(gl.FRAMEBUFFER, prevBuffer)
-
       next(null, data)
     })
   }, function (err, slices) {
